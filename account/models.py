@@ -21,8 +21,16 @@ class MyUserManager(UserManager):
         
         user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
+        
+        # Set first_name and last_name if provided
+        if 'first_name' in extra_fields:
+            user.first_name = extra_fields.pop('first_name')
+        if 'last_name' in extra_fields:
+            user.last_name = extra_fields.pop('last_name')
+        
         user.save(using=self._db)
         return user
+
 
     def create_user(self, username, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)

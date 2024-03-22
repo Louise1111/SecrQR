@@ -1,10 +1,11 @@
-from rest_framework import routers
-from .views import GenerateViewSet
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views
 
-router  =routers.DefaultRouter()
-router.register(r'generate', GenerateViewSet )
+router = DefaultRouter()
+router.register(r'generate', views.GenerateViewSet)
+router.register(r'scan', views.ScanViewSet)
 
 urlpatterns = [
-    path('', include (router.urls))
+    path('', include(router.urls)),
 ]

@@ -17,6 +17,8 @@ class AuthUserAPIView(GenericAPIView):
 
         
 class RegisterApiView(GenericAPIView):
+    #authentication_classes=[]# for authentication to avoid using the custom authentication
+    
     serializer_class=RegisterSerializer
     
     def post(self, request):

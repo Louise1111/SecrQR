@@ -26,7 +26,8 @@ SECRET_KEY = "django-insecure-4lt&iu*l=g(+36vjxf%nd+!_0f#4_r)l*&u#oq(690v9f(8p52
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+VIRUS_TOTAL_API_KEY ="a759ba9c8a836e1bde3da7da0567d32842fa186ffaf1999f5cdbeff92e519fa8"
+APP_PREFIX = 'SecQRapp'
 AUTH_USER_MODEL="account.User"
 # Application definition
 
@@ -102,7 +103,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+REST_FRAMEWORK={
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'account.jwt.JWTAuthentication',
+    ]
+}
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
