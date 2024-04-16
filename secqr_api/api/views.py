@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from ..models import Scan
 from .serializers import ScanSerializer
-
+from ..models import HelpRequest
+from .serializers import HelpSerializer
 class GenerateViewSet(viewsets.ModelViewSet):
     authentication_classes=[]
     queryset = Generate.objects.all()
@@ -24,14 +25,22 @@ class ScanViewSet(viewsets.ModelViewSet):
     queryset = Scan.objects.all()
     serializer_class = ScanSerializer
 
+    # Optionally override create method to handle custom behavior when creating a new Scan object
     def create(self, request, *args, **kwargs):
-
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        if serializer.is_valid():
+            # Perform additional operations if needed
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+class HelpListCreateViewSet(viewsets.ModelViewSet):
+    authentication_classes=[]
+    queryset = HelpRequest.objects.all()
+    serializer_class = HelpSerializer
 
-        # Perform the scan after saving the instance
-        instance = serializer.instance
-        instance.perform_scan()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+class HelpRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    queryset = HelpRequest.objects.all()
+    serializer_class = HelpSerializer
