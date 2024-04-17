@@ -63,7 +63,13 @@ REST_FRAMEWORK={'DEFAULT_PERMISSION_CLASSES':[
 ]}
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = False
+CORS_ALLOWED_ORIGINS = [
+    "https://8593-143-44-184-178.ngrok-free.app",
+]
+CORS_ORIGIN_WHITELIST = [
 
+    'https://8593-143-44-184-178.ngrok-free.app',
+]
 ROOT_URLCONF = "backendSecQR.urls"
 
 TEMPLATES = [
