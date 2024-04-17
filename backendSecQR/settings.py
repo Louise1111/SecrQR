@@ -28,7 +28,7 @@ DEBUG = True
 # The `ALLOWED_HOSTS` setting in Django specifies a list of strings representing the host/domain names
 # that this Django site can serve. When `DEBUG` is set to `False`, Django will only allow requests
 # with a `Host` header that matches one in this list.
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.vercel.app']
 VIRUS_TOTAL_API_KEY ="a759ba9c8a836e1bde3da7da0567d32842fa186ffaf1999f5cdbeff92e519fa8"
 APP_PREFIX = 'SecQR'
 AUTH_USER_MODEL="account.User"
@@ -63,13 +63,8 @@ REST_FRAMEWORK={'DEFAULT_PERMISSION_CLASSES':[
 ]}
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = False
-CORS_ALLOWED_ORIGINS = [
-    "https://8593-143-44-184-178.ngrok-free.app",
-]
-CORS_ORIGIN_WHITELIST = [
+CORS_ALLOWED_ORIGINS = []
 
-    'https://8593-143-44-184-178.ngrok-free.app',
-]
 ROOT_URLCONF = "backendSecQR.urls"
 
 TEMPLATES = [
