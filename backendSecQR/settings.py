@@ -28,7 +28,7 @@ DEBUG = True
 # The `ALLOWED_HOSTS` setting in Django specifies a list of strings representing the host/domain names
 # that this Django site can serve. When `DEBUG` is set to `False`, Django will only allow requests
 # with a `Host` header that matches one in this list.
-ALLOWED_HOSTS = ['.vercel.app']
+ALLOWED_HOSTS = ['*']
 VIRUS_TOTAL_API_KEY ="a759ba9c8a836e1bde3da7da0567d32842fa186ffaf1999f5cdbeff92e519fa8"
 APP_PREFIX = 'SecQR'
 AUTH_USER_MODEL="account.User"
@@ -58,9 +58,16 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
 ]
-REST_FRAMEWORK={'DEFAULT_PERMISSION_CLASSES':[
-    'rest_framework.permission.AllowAny'
-]}
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  # Require authentication for all views
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',  # Add MultiPartParser for file uploads
+    ],
+}
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = False
 CORS_ALLOWED_ORIGINS = []
@@ -92,7 +99,7 @@ WSGI_APPLICATION = "backendSecQR.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sample',
+        'NAME': 'secqr',
         'USER': 'root',
         'PASSWORD': '1234',
         'HOST': 'localhost',  # or the hostname where your MySQL server is running

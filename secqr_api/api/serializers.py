@@ -8,13 +8,13 @@ class GenerateModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Generate
-        fields = ['id', 'description', 'link', 'qr_code', 'date', 'app_prefix', 'url_status', "generation_status",'created_at']
+        fields = ['id','user', 'description', 'link', 'qr_code', 'date', 'app_prefix', 'url_status', "generation_status",'created_at']
 
 class ScanSerializer(serializers.ModelSerializer):
     app_prefix = serializers.CharField(max_length=50, required=False)
     class Meta:
         model = Scan
-        fields = ['id', 'link', 'link_status','app_prefix','scanned_at', 'verify_qr_legitimacy', 'malware_detected', 'malware_detected_tool','image','created_at']
+        fields = ['id','user', 'app_prefix', 'link', 'link_status', 'scanned_at', 'verify_qr_legitimacy', 'malware_detected', 'malware_detected_tool', 'created_at', 'image']
         
 class HelpSerializer(serializers.ModelSerializer):
     class Meta:

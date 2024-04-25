@@ -6,116 +6,107 @@ from PIL import Image
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from datetime import datetime
-from django.conf import settings  # Import settings to access app prefix
+from pyzbar.pyzbar import decode as pyzbar_decode
+import re
 import requests
 from django.conf import settings
 import hashlib
 import requests
-from helpers.models import TrackingModel
+from django.contrib.auth.models import User
 
 api_key = "a759ba9c8a836e1bde3da7da0567d32842fa186ffaf1999f5cdbeff92e519fa8"
 url = 'https://www.virustotal.com/vtapi/v2/url/report'
+User = settings.AUTH_USER_MODEL
 
-# models.py
-from django.db import models
-from django.core.validators import URLValidator
-from django.core.exceptions import ValidationError
-import requests
-import hashlib
-import pyzbar.pyzbar as pyzbar
-from PIL import Image
-
-import re
 class Scan(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,default=1)
     app_prefix = models.CharField(max_length=50, default='SecQR', editable=False)
     link = models.CharField(max_length=200, blank=True, null=True)
-    link_status = models.CharField(max_length=200, default='NONE')
+    link_status = models.CharField(max_length=20, default='NONE')
     scanned_at = models.DateTimeField(auto_now_add=True)
-    verify_qr_legitimacy = models.CharField(max_length=200, default='NONE')
+    verify_qr_legitimacy = models.CharField(max_length=30, default='NONE')
     malware_detected = models.TextField(default='NONE')
     malware_detected_tool = models.TextField(default='NONE')
     created_at = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='scan_images/', blank=False, null=False)
+    image = models.ImageField(upload_to='scan_images/', blank=True, null=True)
 
     def __str__(self):
-        return self.link
-
+        if self.link:
+            return self.link
+        else:
+            return f"Scan object {self.pk}"
 
     def save(self, *args, **kwargs):
-        if not self.image:
-            raise ValidationError("Image field is required.")
+        if not self.image and not self.link:
+            raise ValidationError("Either image or link field is required.")
 
-        # Open the uploaded image
-        img = Image.open(self.image)
+        try:
+            if self.image:
+                img = Image.open(self.image)
+                decoded_objects = pyzbar_decode(img)
+                url_pattern = r'(https?://\S+)'
 
-        # Decode the QR code from the image
-        decoded_objects = pyzbar.decode(img)
+                for obj in decoded_objects:
+                    data = obj.data.decode('utf-8')
+                    urls_found = re.findall(url_pattern, data)
+                    if urls_found:
+                        url_validator = URLValidator()
+                        try:
+                            url_validator(urls_found[0])
+                            self.link = urls_found[0]
+                            break
+                        except ValidationError:
+                            continue
 
-        # Regular expression pattern to match URLs
-        url_pattern = r'(https?://\S+)'
+                if not self.link:
+                    raise ValidationError("No valid URL found in the QR code data.")
 
-        # Check each decoded object for URLs
-        for obj in decoded_objects:
-            data = obj.data.decode('utf-8')
-            # Search for URLs using the regular expression pattern
-            urls_found = re.findall(url_pattern, data)
-            # If URLs are found, take the first one and assign it to the link attribute
-            if urls_found:
-                url_validator = URLValidator()
-                try:
-                    url_validator(urls_found[0])
-                    # If validation succeeds, assign the URL to the link attribute
-                    self.link = urls_found[0]
-                    # Break out of the loop after finding the first valid URL
-                    break
-                except ValidationError:
-                    # Continue to the next decoded object if validation fails
-                    continue
+            url_status, malware_detected, malware_detected_tool = self.scan_url()
+            self.malware_detected = malware_detected
+            self.malware_detected_tool = malware_detected_tool
+            self.link_status = url_status
 
-        # If no valid URL is found in the decoded objects, raise a ValidationError
-        if not self.link:
-            raise ValidationError("No valid URL found in the QR code data.")
+            verify_qr = self.verify_qr_code()
+            self.verify_qr_legitimacy = verify_qr
 
-        url_status, malware_detected, malware_detected_tool = self.scan_url()
-        self.malware_detected = malware_detected
-        self.malware_detected_tool = malware_detected_tool
-        self.link_status = url_status
-
-        verify_qr = self.verify_qr_code()
-        self.verify_qr_legitimacy = verify_qr
-
-        super().save(*args, **kwargs)
+            super().save(*args, **kwargs)
+        except Exception as e:
+            # Handle any unexpected errors
+            raise ValidationError(f"Error saving scan: {e}")
 
     def scan_url(self):
-        url = 'https://www.virustotal.com/vtapi/v2/url/report'
-        params = {'apikey': api_key, 'resource': self.link}
+        try:
+            url = 'https://www.virustotal.com/vtapi/v2/url/report'
+            params = {'apikey': api_key, 'resource': self.link}
+            response = requests.get(url, params=params)
 
-        response = requests.get(url, params=params)
-
-        if response.status_code == 200:
-            response_json = response.json()
-            if 'positives' in response_json:
-                positives = response_json['positives']
-                if positives <= 4:
-                    malware_detected, detected_malware_tool = self.extract_detected_malware(response_json)
-                    return "SAFE", malware_detected, detected_malware_tool
-                elif 5 <= positives <= 9:
-                    malware_detected, detected_malware_tool = self.extract_detected_malware(response_json)
-                    return "NOT THAT SAFE", malware_detected, detected_malware_tool
-                elif positives >= 10:
-                    malware_detected, detected_malware_tool = self.extract_detected_malware(response_json)
-                    return "MALICIOUS", malware_detected, detected_malware_tool
+            if response.status_code == 200:
+                response_json = response.json()
+                if 'positives' in response_json:
+                    positives = response_json['positives']
+                    if positives <= 4:
+                        malware_detected, detected_malware_tool = self.extract_detected_malware(response_json)
+                        return "SAFE", malware_detected, detected_malware_tool
+                    elif 5 <= positives <= 9:
+                        malware_detected, detected_malware_tool = self.extract_detected_malware(response_json)
+                        return "NOT THAT SAFE", malware_detected, detected_malware_tool
+                    elif positives >= 10:
+                        malware_detected, detected_malware_tool = self.extract_detected_malware(response_json)
+                        return "MALICIOUS", malware_detected, detected_malware_tool
+                else:
+                    return "NOT ACTIVE", [], []
+            elif response.status_code == 403:
+                return "INACTIVE/MALICIOUS", [], []
             else:
-                return "NOT ACTIVE", malware_detected, detected_malware_tool
-        elif response.status_code == 403:
-            return "INACTIVE/MALICIOUS", malware_detected, detected_malware_tool
-        else:
-            return "Error", [], []
+                return "Error", [], []
+        except Exception as e:
+            # Handle any unexpected errors
+            raise ValidationError(f"Error scanning URL: {e}")
 
     def extract_detected_malware(self, response_json):
         malware_detected = set()
         detected_malware_tool = []
-        
+
         for tool, scan in response_json.get('scans', {}).items():
             if scan.get('detected'):
                 result = scan.get('result')
@@ -126,37 +117,34 @@ class Scan(models.Model):
         return list(malware_detected), detected_malware_tool
 
     def verify_qr_code(self):
-        if '###' in self.link:
-            # Split the decoded data into link and hash
-            link, link_hash = self.link.split('###')
+        try:
+            if '###' in self.link:
+                link, link_hash = self.link.split('###')
+                combined_data = f"{self.app_prefix}{link}"
+                recalculated_hash = hashlib.sha256(combined_data.encode()).hexdigest()
 
-            # Recalculate the hash from the app prefix and link
-            combined_data = f"{self.app_prefix}{link}"
-            recalculated_hash = hashlib.sha256(combined_data.encode()).hexdigest()
-
-            if recalculated_hash == link_hash:
-                return "Generated by SecQR APP"
+                if recalculated_hash == link_hash:
+                    return "Generated by SecQR APP"
+                else:
+                    return "Generated by Third Party"
             else:
-                return "Generated by Third Party"
-        else:
-            # If there are not exactly three parts, return "Not Verified"
-            return "Generated by Third Party APP"
-
-
-
-
+                return "Generated by Third Party APP"
+        except Exception as e:
+            # Handle any unexpected errors
+            raise ValidationError(f"Error verifying QR code: {e}") 
 ###################################################################################
 ###################################################################################
 ###################################################################################
 class Generate(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,default=1)
     description = models.CharField(max_length=200)
     link = models.CharField(max_length=200)
     qr_code = models.ImageField(blank=True, upload_to='qrcodes/')
     date = models.DateField(auto_now_add=True)
     _app_prefix_hidden = models.CharField(max_length=50, default='SecQR', editable=False)
     app_prefix = models.CharField(max_length=50, default='SecQR', editable=False)  # New field to store app prefix
-    url_status = models.CharField(max_length=200,default='NONE')
-    generation_status = models.CharField(max_length=200,default='NONE')
+    url_status = models.CharField(max_length=20,default='NONE')
+    generation_status = models.CharField(max_length=20,default='NONE')
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return str(self.link)
