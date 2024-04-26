@@ -7,6 +7,11 @@ from helpers.models import TrackingModel
 import jwt
 from django.conf import settings
 from datetime import datetime, timedelta
+from django.core.files.base import ContentFile
+from django.utils import timezone
+from io import BytesIO
+import os
+from django.conf import settings
 class MyUserManager(UserManager):
     def _create_user(self, username, email, password, **extra_fields):
         """
@@ -48,7 +53,7 @@ class MyUserManager(UserManager):
 
         return self._create_user(username, email, password, **extra_fields)
 
-class User(AbstractBaseUser, PermissionsMixin, TrackingModel):
+class User(AbstractBaseUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator()
 
     username = models.CharField(
@@ -66,6 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin, TrackingModel):
     first_name = models.CharField(_("first name"), max_length=27, blank=False)
     last_name = models.CharField(_("last name"), max_length=50, blank=False)
     email = models.EmailField(_("email address"), blank=False, unique=True)
+    image = models.ImageField(upload_to='profiles/', default='default.png', blank=True, null=True)
     is_staff = models.BooleanField(
         _("staff status"),
         default=False,
@@ -102,3 +108,14 @@ class User(AbstractBaseUser, PermissionsMixin, TrackingModel):
             settings.SECRET_KEY, algorithm='HS256')
         
         return token
+    
+    def upload_picture(self, image):
+        # Check if the uploaded image is not the default.png
+        if self.image.name != 'default.png':
+            # Delete the existing image
+            self.image.delete()
+        # Set the new image
+        self.image = image
+        self.save()
+        # Return the complete URI of the uploaded image
+        return self.image.url

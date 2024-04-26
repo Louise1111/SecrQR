@@ -94,7 +94,7 @@ class Scan(models.Model):
                         malware_detected, detected_malware_tool = self.extract_detected_malware(response_json)
                         return "MALICIOUS", malware_detected, detected_malware_tool
                 else:
-                    return "NOT ACTIVE", [], []
+                    return "NOT FOUND", [], []
             elif response.status_code == 403:
                 return "INACTIVE/MALICIOUS", [], []
             else:
@@ -213,7 +213,7 @@ class Generate(models.Model):
                 elif positives >= 10:
                     return "MALICIOUS"
             else:
-                return "NOT ACTIVE"
+                return "NOT FOUND"
         elif response.status_code == 403:
             return "INACTIVE/MALICIOUS"
         else:

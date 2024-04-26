@@ -8,7 +8,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id','username', 'email', 'password', 'first_name', 'last_name')
+        fields = ('id','username', 'email', 'password', 'first_name', 'last_name','image')
 
     def create(self, validated_data):
         try:
@@ -23,7 +23,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'token')
+        fields = ('username', 'password', 'token', 'image')
         read_only_fields = ['token']
 
     def validate(self, attrs):
@@ -48,5 +48,13 @@ class LoginSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("An error occurred during login.")
 
         return attrs
+
+
+
+class LogoutSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)
     
+    
+class UserPictureSerializer(serializers.Serializer):
+    image = serializers.ImageField()
 

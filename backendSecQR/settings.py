@@ -57,6 +57,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
+    
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -96,17 +97,28 @@ WSGI_APPLICATION = "backendSecQR.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'secqr',
+#         'USER': 'root',
+#         'PASSWORD': '1234',
+#         'HOST': 'localhost',  # or the hostname where your MySQL server is running
+#         'PORT': '3306',      # or the port on which your MySQL server is listening
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'secqr',
-        'USER': 'root',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',  # or the hostname where your MySQL server is running
-        'PORT': '3306',      # or the port on which your MySQL server is listening
+        
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': 'VewNruQJVFKvhSrXIAIPZIASzeozKRwb',
+        'HOST': 'viaduct.proxy.rlwy.net',
+        'PORT': '37248',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -130,6 +142,7 @@ REST_FRAMEWORK={
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'account.jwt.JWTAuthentication',
     ]
+    
 }
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -155,3 +168,20 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+import os
+from django.core.mail.backends.smtp import EmailBackend
+
+
+# Email backend configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.office365.com'  # Gmail SMTP server
+EMAIL_PORT = 587  # Gmail SMTP port
+EMAIL_USE_TLS = True  # Gmail requires TLS
+
+# Replace these placeholders with your actual Gmail email address and password
+EMAIL_HOST_USER = 'secqr_app@outlook.com'  # Your Gmail email address
+EMAIL_HOST_PASSWORD = 'SecQr@1919'  # Your Gmail password
+
+DEFAULT_FROM_EMAIL = 'secqr_app@outlook.com'  # Your Gmail email address
