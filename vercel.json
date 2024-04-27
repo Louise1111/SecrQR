@@ -9,7 +9,8 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "backendSecQR/wsgi.py"
+      "dest": "backendSecQR/wsgi.py",
+      "rewrites": [{ "source": "/(.*)", "destination": "/" }]
     }
   ]
 }
