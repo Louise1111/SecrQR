@@ -3,13 +3,14 @@
     {
       "src": "backendSecQR/wsgi.py",
       "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
+      "config": { "maxLambdaSize": "15mb", "runtime": "python3.10.11" }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "backendSecQR/wsgi.py"
+      "dest": "backendSecQR/wsgi.py",
+      "rewrites": [{ "source": "/(.*)", "destination": "/" }]
     }
   ]
 }
