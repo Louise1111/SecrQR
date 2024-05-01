@@ -29,6 +29,7 @@ class Scan(models.Model):
     malware_detected_tool = models.TextField(default='NONE')
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='scan_images/', blank=True, null=True)
+    report = models.CharField(max_length=5, default='No')
 
     def __str__(self):
         if self.link:
@@ -71,7 +72,6 @@ class Scan(models.Model):
 
             super().save(*args, **kwargs)
         except Exception as e:
-            # Handle any unexpected errors
             raise ValidationError(f"Error saving scan: {e}")
 
     def scan_url(self):
@@ -96,7 +96,7 @@ class Scan(models.Model):
                 else:
                     return "NOT FOUND", [], []
             elif response.status_code == 403:
-                return "INACTIVE/MALICIOUS", [], []
+                return "INACTIVE/MALICIOUS", malware_detected, detected_malware_tool
             else:
                 return "Error", [], []
         except Exception as e:
@@ -132,6 +132,7 @@ class Scan(models.Model):
         except Exception as e:
             # Handle any unexpected errors
             raise ValidationError(f"Error verifying QR code: {e}") 
+
 ###################################################################################
 ###################################################################################
 ###################################################################################
@@ -213,7 +214,7 @@ class Generate(models.Model):
                 elif positives >= 10:
                     return "MALICIOUS"
             else:
-                return "NOT FOUND"
+                return "NOT ACTIVE"
         elif response.status_code == 403:
             return "INACTIVE/MALICIOUS"
         else:
@@ -249,34 +250,24 @@ class Generate(models.Model):
             logo_path = 'media/images/logo.png' # Adjust path to your logo image
             logo_img = Image.open(logo_path)
 
-            # Calculate the size ratio between the QR code and logo
             qr_width, qr_height = qr_img.size
             logo_width, logo_height = logo_img.size
             size_ratio = min(logo_width / qr_width, logo_height / qr_height)
 
-            # Resize the logo image while preserving its original quality
             new_logo_width = int(qr_width * size_ratio)
             new_logo_height = int(qr_height * size_ratio)
             logo_img = logo_img.resize((new_logo_width, new_logo_height))
-
-            # Create a transparent image the same size as the logo image
             transparent_img = Image.new('RGBA', logo_img.size, (255, 255, 255, 0))
 
-            # Calculate the position to paste the QR code onto the logo image
             position = ((new_logo_width - qr_width) // 2, (new_logo_height - qr_height) // 4) # Center position
-
-            # Paste the QR code onto the transparent image
             transparent_img.paste(qr_img, position)
 
-            # Composite the transparent image onto the logo image
             logo_img = Image.alpha_composite(logo_img.convert('RGBA'), transparent_img)
-
-            # Save the QR code image
             buffer = BytesIO()
             logo_img.save(buffer, format='PNG')
             filename = f"secQRResult_{self.date}.png"
 
-            self.qr_code.save(filename, ContentFile(buffer.getvalue()), save=False)
+            self.qr_code.save(filename, ContentFile(buffer.getvalue()), save=False) 
             
 ###################################################################################
 ###################################################################################

@@ -74,14 +74,14 @@ class LoginApiView(GenericAPIView):
 
 
 class LogoutAPIView(APIView):
-    permission_classes = [IsAuthenticated]  # Require authentication for this view
+    permission_classes = [IsAuthenticated]  
 
     def post(self, request):
-        # Perform logout
+       
         logout(request)
         return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
     
-# views.py
+
 
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.response import Response

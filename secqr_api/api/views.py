@@ -12,6 +12,19 @@ from .serializers import HelpSerializer
 from django.http import JsonResponse
 from rest_framework.parsers import MultiPartParser
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from ..utils import send_report_email
+class ReportScanAPIView(APIView):
+    def post(self, request, pk):
+        try:
+            scan = Scan.objects.get(pk=pk)
+            link = scan.link
+            send_report_email(link)
+            scan.report = 'Yes'
+            scan.save()
+            return Response({'message': 'Link has been reported', 'link': link}, status=status.HTTP_200_OK)
+        except Scan.DoesNotExist:
+            return Response({'error': 'link not found'}, status=status.HTTP_404_NOT_FOUND)
 @csrf_exempt
 def upload_image(request):
     if request.method == 'POST' and request.FILES.get('image'):

@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-4lt&iu*l=g(+36vjxf%nd+!_0f#4_r)l*&u#oq(690v9f(8p52"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # The `ALLOWED_HOSTS` setting in Django specifies a list of strings representing the host/domain names
 # that this Django site can serve. When `DEBUG` is set to `False`, Django will only allow requests
 # with a `Host` header that matches one in this list.
-ALLOWED_HOSTS = ['.vercel.app']
+ALLOWED_HOSTS = ['localhost', 'Lc1223.pythonanywhere.com']
 VIRUS_TOTAL_API_KEY ="a759ba9c8a836e1bde3da7da0567d32842fa186ffaf1999f5cdbeff92e519fa8"
 APP_PREFIX = 'SecQR'
 AUTH_USER_MODEL="account.User"
@@ -160,6 +160,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
+
 MEDIA_URL = 'media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -172,7 +173,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 import os
 from django.core.mail.backends.smtp import EmailBackend
-
+STATIC_ROOT= os.path.join(BASE_DIR, 'static')
 
 # Email backend configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
