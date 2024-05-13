@@ -98,28 +98,28 @@ WSGI_APPLICATION = "backendSecQR.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'secqr',
-#         'USER': 'root',
-#         'PASSWORD': '1234',
-#         'HOST': 'localhost',  # or the hostname where your MySQL server is running
-#         'PORT': '3306',      # or the port on which your MySQL server is listening
-#     }
-# }
-
 DATABASES = {
     'default': {
-        
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': 'VewNruQJVFKvhSrXIAIPZIASzeozKRwb',
-        'HOST': 'viaduct.proxy.rlwy.net',
-        'PORT': '37248',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'secqr',
+        'USER': 'root',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',  # or the hostname where your MySQL server is running
+        'PORT': '3306',      # or the port on which your MySQL server is listening
     }
 }
+
+# DATABASES = {
+#     'default': {
+        
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'railway',
+#         'USER': 'postgres',
+#         'PASSWORD': 'VewNruQJVFKvhSrXIAIPZIASzeozKRwb',
+#         'HOST': 'viaduct.proxy.rlwy.net',
+#         'PORT': '37248',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

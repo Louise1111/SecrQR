@@ -12,6 +12,7 @@ def send_report_email(link):
         '<p>Injected in a QR Code.</p>'
         '<p>Best regards,</p>'
         '<p>SecQR</p>'
+        '<img src="https://i.ibb.co/pyyWq9T/secqr-logo-secure.png" alt="SecQR Logo" style="width: 60px; height: 30px; margin-bottom: 20px;">'
     )
     from_email = 'secqr_app@outlook.com'
     send_mail(subject, message, from_email, [email_to], html_message=message)
