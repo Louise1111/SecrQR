@@ -9,3 +9,4 @@ urlpatterns = [
     path("api/", include('secqr_api.api.urls')),
     path("api/", include('account.urls'))
 ] + static (settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

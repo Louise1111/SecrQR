@@ -71,7 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(_("first name"), max_length=27, blank=False)
     last_name = models.CharField(_("last name"), max_length=50, blank=False)
     email = models.EmailField(_("email address"), blank=False, unique=True)
-    image = models.ImageField(upload_to='profiles/', default='default.png', blank=True, null=True)
+    image = models.ImageField(upload_to='profiles/', default='profiles/default.png', blank=True, null=True)
     is_staff = models.BooleanField(
         _("staff status"),
         default=False,
@@ -119,3 +119,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.save()
         # Return the complete URI of the uploaded image
         return self.image.url
+
