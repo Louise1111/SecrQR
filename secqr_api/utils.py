@@ -9,7 +9,7 @@ def send_report_email(link):
         '<p>Greetings! </p>'
         '<p> This is SecQR reporting a malicious link:</p>'
         f'<p>{modified_link}</p>'
-        '<p>Injected in a QR Code.</p>'
+
         '<p>Best regards,</p>'
         '<p>SecQR</p>'
         '<img src="https://i.ibb.co/pyyWq9T/secqr-logo-secure.png" alt="SecQR Logo" style="width: 60px; height: 30px; margin-bottom: 20px;">'
